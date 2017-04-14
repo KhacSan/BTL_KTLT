@@ -94,15 +94,7 @@ void DocThongTinMotNhanVien(ifstream &input,NhanVien &nhanvien) {
 }
 
 void DocFile(ifstream &input, vector <NhanVien> &ds_NhanVien) {
-	/*int n = 0;
-	while (n < 4)
-	{
-		NhanVien nhanvien;
-		DocThongTinMotNhanVien(input, nhanvien);
-		ds_NhanVien.push_back(nhanvien);
-		n++;
-	}*/
-	//lỗi ???
+
 	while (input.eof() == false)
 	{
 		NhanVien nhanvien;
