@@ -39,10 +39,24 @@ void DocThoiGianLamViec(ifstream &input,ThoiGian &ThoiGianLamViec) {
 	input >> ThoiGianLamViec.phutVe;
 }
 
+// so sánh 2 ki tu dau tien cua 2 chuoi chuỗi 
+int nemcmp(string str1, string str2) {
+	for (int i = 0; i < 2; i++)
+	{
+		if (str1[i] > str2[i])
+			return 1;
+		else if (str1[i] < str2[i])
+			return -1;
+	}
+	return 0;
+}
+
+
 //đọc thông tin 1 nhân viên từ file
 void DocThongTinMotNhanVien(ifstream &input,NhanVien &nhanvien) {
 	string str;
-	getline(input,str);
+	int n = 0,count =0;
+	getline(input,str);// doc vào dòng đâu tiên - mã nhân viên
 	getline(input, nhanvien.ho);
 	getline(input, nhanvien.ten);
 	getline(input, nhanvien.donVi);
@@ -53,24 +67,48 @@ void DocThongTinMotNhanVien(ifstream &input,NhanVien &nhanvien) {
 	getline(input, nhanvien.email);
 	getline(input, nhanvien.sdt);
 	getline(input, nhanvien.ngayBatDauLamViec);
-	ThoiGian thoiGianLamViec;
+
 	string temp;
-	DocThoiGianLamViec(input, thoiGianLamViec);
-	getline(input, temp);
-	nhanvien.DS_ThoiGianLamViec.push_back(thoiGianLamViec);
-/*	while (true)
+	int vitri = input.tellg();// lay vi tri hien tai cua con tro
+	while (true)
+	{
+		
+		if (input.eof()) break;
+		getline(input, temp);
+		if(nemcmp(temp, "NV") == 0 ) break;
+		n++;
+	}
+
+	// dich chuyen con tro den vi tri = vitri
+	input.seekg(vitri, ios::beg);
+	ThoiGian thoiGianLamViec;
+
+	while (count < n )
 	{
 		DocThoiGianLamViec(input, thoiGianLamViec);
 		getline(input, temp);
 		nhanvien.DS_ThoiGianLamViec.push_back(thoiGianLamViec);
-		if (input.eof()) break;
-	}*/
+		count++;
+	}
 
 }
 
-void DocFile(ifstream &input, NhanVien &nhanvien) {
-	
-	DocThongTinMotNhanVien(input, nhanvien);
+void DocFile(ifstream &input, vector <NhanVien> &ds_NhanVien) {
+	/*int n = 0;
+	while (n < 4)
+	{
+		NhanVien nhanvien;
+		DocThongTinMotNhanVien(input, nhanvien);
+		ds_NhanVien.push_back(nhanvien);
+		n++;
+	}*/
+	//lỗi ???
+	while (input.eof() == false)
+	{
+		NhanVien nhanvien;
+		DocThongTinMotNhanVien(input, nhanvien);
+		ds_NhanVien.push_back(nhanvien);
+	}
 	
  }
 
@@ -79,9 +117,9 @@ void xuatThoiGian(ThoiGian thoiGian) {
 		 << thoiGian.gioVe << ":" << thoiGian.phutVe << endl;
 }
 
-void display(NhanVien nhanvien) {
-	string str;
-	cout << "Thong tin nhan vien:"<<endl;
+void xuatThongTinMotNhanVien(NhanVien nhanvien) {
+	
+	//cout << "Thong tin nhan vien:" << endl;
 	cout << "Ho: " << nhanvien.ho << endl;
 	cout << "Ten: " << nhanvien.ten << endl;
 	cout << "Don vi: " << nhanvien.diaChi << endl;
@@ -95,16 +133,22 @@ void display(NhanVien nhanvien) {
 
 	for (int i = 0; i < nhanvien.DS_ThoiGianLamViec.size(); i++) {
 		xuatThoiGian(nhanvien.DS_ThoiGianLamViec[i]);
-   }
+	}
+}
+
+void display(vector <NhanVien> ds_NhanVien) {
+	for (int i = 0; i < ds_NhanVien.size(); i++) {
+		xuatThongTinMotNhanVien(ds_NhanVien[i]);
+	}
 }
 
 int main()
 {
 	ifstream input;
 	input.open("NhanVien.txt", ios_base::in);
-	NhanVien nhanvien;
-	DocFile(input, nhanvien);
-	display(nhanvien);
+	vector <NhanVien> ds_NhanVien;
+	DocFile(input, ds_NhanVien);
+	display(ds_NhanVien);
 	input.close();
 	system("pause");
 	return 0;
