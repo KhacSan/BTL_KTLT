@@ -16,6 +16,7 @@ typedef struct thoiGian {
 typedef struct nhanvien{
 	string ho;
 	string ten;
+	string maNhanVien;
 	string donVi;
 	string chucVu;
 	string ngaySinh;
@@ -29,6 +30,7 @@ typedef struct nhanvien{
 
 //đọc thời gian làm việc của 1 nhân viên
 void DocThoiGianLamViec(ifstream &input,ThoiGian &ThoiGianLamViec) {
+	
 	getline(input, ThoiGianLamViec.ngayThangNam,',');
 	input >> ThoiGianLamViec.gioDen;
 	input.seekg(1,1); //dich con tro chi vi 1 byte
@@ -54,9 +56,8 @@ int nemcmp(string str1, string str2) {
 
 //đọc thông tin 1 nhân viên từ file
 void DocThongTinMotNhanVien(ifstream &input,NhanVien &nhanvien) {
-	string str;
 	int n = 0,count =0;
-	getline(input,str);// doc vào dòng đâu tiên - mã nhân viên
+	getline(input,nhanvien.maNhanVien);// doc vào dòng đâu tiên - mã nhân viên
 	getline(input, nhanvien.ho);
 	getline(input, nhanvien.ten);
 	getline(input, nhanvien.donVi);
@@ -111,9 +112,9 @@ void xuatThoiGian(ThoiGian thoiGian) {
 
 void xuatThongTinMotNhanVien(NhanVien nhanvien) {
 	
-	//cout << "Thong tin nhan vien:" << endl;
 	cout << "Ho: " << nhanvien.ho << endl;
 	cout << "Ten: " << nhanvien.ten << endl;
+	cout << "Ma nhan vien: " << nhanvien.maNhanVien << endl;
 	cout << "Don vi: " << nhanvien.diaChi << endl;
 	cout << "Chuc vu: " << nhanvien.chucVu << endl;
 	cout << "Ngay sinh: " << nhanvien.ngaySinh << endl;
@@ -130,6 +131,7 @@ void xuatThongTinMotNhanVien(NhanVien nhanvien) {
 
 void display(vector <NhanVien> ds_NhanVien) {
 	for (int i = 0; i < ds_NhanVien.size(); i++) {
+		cout << "Thong tin nhan vien thu " << i+1 <<":" << endl;
 		xuatThongTinMotNhanVien(ds_NhanVien[i]);
 	}
 }
