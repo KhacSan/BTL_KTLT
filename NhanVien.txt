@@ -1,4 +1,4 @@
-﻿NV1
+NV1
 Tran Van
 A
 BKCorporation
@@ -9,9 +9,9 @@ So 1, Ta quang buu
 tranvana@gmail.com
 0123456789
 22/02/2016
-22/02/2016,7:49,18:01
-23/02/2016,7:51,18:05
-24/02/2016,7:45,12:30
+22/02/2016,8:50,16:00
+23/02/2016,8:55,16:05
+24/02/2016,7:45,15:30
 NV2
 Nguyen Van
 B
@@ -41,7 +41,7 @@ nguyenthic@gmail.com
 22/02/2016,7:49,18:00
 23/02/2016,7:51,18:15
 24/02/2016,7:45,12:30
-NV4
+nv4
 Nguyen Thi
 D
 BKCorporation
@@ -162,7 +162,7 @@ K
 BKTech
 Nhan Vien
 20/10/1989
-Pho Chu Tich
+Ha Noi
 So 1, Bach mai
 nguyenthik@gmail.com
 0123987654
@@ -370,7 +370,7 @@ W
 BKTech
 Nhan Vien
 21/05/1982
-Pho Chu Tich
+Ha Noi
 So 1, Bach mai
 nguyenthiw@gmail.com
 0123987654
