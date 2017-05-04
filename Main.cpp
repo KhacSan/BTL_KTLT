@@ -4,7 +4,6 @@
 #include<iomanip>
 #include<cstdlib>
 #include<time.h>
-#include<math.h>
 #include<iostream>
 using namespace std;
 #define GIO_DEN 8
@@ -1252,8 +1251,18 @@ int main()
 					cout << "Danh sach cong ty rong!" << endl;
 					break;
 				}
+				DonVi *pDanhSachDonVi = ds_DonVi;
+				int n = 1;
+				cout << "Danh sach cac don vi: " << endl;
+				while (true)
+				{
+					cout << n << ". " << pDanhSachDonVi->tenDonVi << endl;
+					n++;
+					if (pDanhSachDonVi->next == ds_DonVi) break;
+					pDanhSachDonVi = pDanhSachDonVi->next;
+				}
 				string tenDonVi;
-				cout << "Nhap ten don vi can tim: ";
+				cout << "Nhap ten don vi can hien thi: ";
 				cin.ignore();
 				getline(cin, tenDonVi);
 				clock_t start = clock();
