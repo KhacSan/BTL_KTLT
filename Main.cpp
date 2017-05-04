@@ -2,7 +2,9 @@
 #include<fstream>
 #include<string>
 #include<iomanip>
-#include <cstdlib>
+#include<cstdlib>
+#include<time.h>
+#include<math.h>
 #include<iostream>
 using namespace std;
 #define GIO_DEN 8
@@ -43,19 +45,18 @@ typedef struct donVi {
 	Node_NhanVien *canBo;
 	Node_NhanVien *nhanVien;
 	struct donVi *next;
-	int soNhanVien;
+	int soNhanVien;  //chi tinh so nhan vien khong tinh chu tich, pho chu tich...
 }DonVi;
 
 //đọc thời gian làm việc của 1 nhân viên, den khi gap ma nhan vien tiep theo thi dung lai
 void DocThoiGianLamViec(ifstream &input, ThoiGian &ThoiGianLamViec) {
-
 	getline(input, ThoiGianLamViec.ngayThangNam, ',');
 	input >> ThoiGianLamViec.gioDen;
-	input.seekg(1, 1); //dich con tro chi vi 1 byte
+	input.seekg(1, input.cur); //dich con tro chi vi 1 byte so voi vi tri hien tai
 	input >> ThoiGianLamViec.phutDen;
-	input.seekg(1, 1);
+	input.seekg(1, input.cur);
 	input >> ThoiGianLamViec.gioVe;
-	input.seekg(1, 1);
+	input.seekg(1, input.cur);
 	input >> ThoiGianLamViec.phutVe;
 }
 
@@ -181,13 +182,15 @@ void DocThongTinMotNhanVien(ifstream &input, NhanVien &nhanvien) {
 }
 
 void xuatThoiGian(ThoiGian thoiGian) {
-	cout << left << "Ngay : " << thoiGian.ngayThangNam << ","  << thoiGian.gioDen << ":" 
-		<< thoiGian.phutDen << ","<< thoiGian.gioVe << ":" << thoiGian.phutVe << endl;
+	cout << left << "Ngay : " << thoiGian.ngayThangNam << "," << setw(2) << right << setfill('0') << thoiGian.gioDen
+		 << setfill(' ') << ":" << setw(2) << right << setfill('0') << thoiGian.phutDen << setfill(' ') 
+		 << "," << setw(2) << right << setfill('0')<< thoiGian.gioVe << setfill(' ') << ":"
+		 << setw(2) << right << setfill('0') << thoiGian.phutVe << setfill(' ')<< endl;
 }
 
 void xuatThongTinCoBanMotNhanVien(NhanVien nhanvien) {
-	cout << left << setw(15) << nhanvien.ho << setw(7) << nhanvien.ten << setw(8) << nhanvien.maNhanVien << setw(12)
-		<< nhanvien.ngaySinh << setw(10) << nhanvien.queQuan << setw(25) << nhanvien.diaChi 
+	cout << left << setw(15) << nhanvien.ho << setw(10) << nhanvien.ten << setw(8) << nhanvien.maNhanVien << setw(12)
+		<< nhanvien.ngaySinh << setw(15) << nhanvien.queQuan << setw(25) << nhanvien.diaChi
 		<< setw(20) << nhanvien.donVi << setw(10) << nhanvien.chucVu << endl;
 	/*for (int i = 0; i < nhanvien.DS_ThoiGianLamViec.size(); i++) {
 		xuatThoiGian(nhanvien.DS_ThoiGianLamViec[i]);
@@ -320,8 +323,8 @@ void Output(DonVi *ds_DonVi) {
 		while (true)
 		{
 			cout << pDonVi->tenDonVi << ": " << endl;
-			cout << left << setw(15) << "Ho" << setw(7) << "Ten" << setw(8) << "Ma NV" << setw(12) << "Ngay Sinh"
-				<< setw(10) << "Que Quan" << setw(25) << "Dia Chi"  << setw(20)
+			cout << left << setw(15) << "Ho" << setw(10) << "Ten" << setw(8) << "Ma NV" << setw(12) << "Ngay Sinh"
+				<< setw(15) << "Que Quan" << setw(25) << "Dia Chi" << setw(20)
 				<< "Don Vi" << setw(10) << "Chuc Vu" << endl;
 			Node_NhanVien *pCanBo = pDonVi->canBo;
 			while (true)
@@ -346,23 +349,41 @@ void Output(DonVi *ds_DonVi) {
 	}
 }
 
+DonVi *timKiemMotDonVi(DonVi *ds_DonVi, string tenDonVi) {
+	DonVi *pDonVi = ds_DonVi;
+	while (true)
+	{
+		if (_stricmp(pDonVi->tenDonVi.c_str(), tenDonVi.c_str()) == 0)
+			return pDonVi;
+		if (pDonVi->next == ds_DonVi) break;
+		pDonVi = pDonVi->next;
+	}
+	return NULL;
+}
+
 void xuatThongTinCoBanVeMotDonVi(DonVi *ds_DonVi, string tenDonVi)
 {
 	if (ds_DonVi == NULL) {
-		cout << "Khong co thong tin de hien thi" << endl;
+		return;
 	}
 	else
 	{
-		DonVi *p = ds_DonVi;
-		int count = 0;
-		cout << left << setw(15) << "Ho" << setw(7) << "Ten" << setw(8) << "Ma NV" << setw(12) << "Ngay Sinh"
-			 << setw(10) << "Que Quan" << setw(25) << "Dia Chi" << setw(20) << "Don Vi" << setw(10) << "Chuc Vu" << endl;
-		while (true)
+		DonVi *pDonVi = timKiemMotDonVi(ds_DonVi, tenDonVi);
+		if (pDonVi == NULL) {
+			cout << "\nKhong co don vi nay trong danh sach!" << endl;
+			return;
+		}
+		else
 		{
-			if (_stricmp((p->tenDonVi).c_str(), tenDonVi.c_str()) == 0) {
-				count++;
-				int n = 0;   //bien dem so can bo
-				Node_NhanVien *pCanBo = p->canBo;
+			Node_NhanVien *pCanBo = pDonVi->canBo;
+			if (pCanBo == NULL) {
+				cout << "\nKhong co thong tin can bo!\n" << endl;
+			}
+			else
+			{
+				cout << "Thong tin can bo: " << endl;
+				cout << left << setw(15) << "Ho" << setw(10) << "Ten" << setw(8) << "Ma NV" << setw(12) << "Ngay Sinh"
+					 << setw(15) << "Que Quan" << setw(25) << "Dia Chi" << setw(20) << "Don Vi" << setw(10) << "Chuc Vu" << endl;
 				while (true)
 				{
 					if (pCanBo == NULL) {
@@ -370,14 +391,20 @@ void xuatThongTinCoBanVeMotDonVi(DonVi *ds_DonVi, string tenDonVi)
 					}
 					else
 					{
-						n++;
 						xuatThongTinCoBanMotNhanVien(pCanBo->nhanVien);
 						pCanBo = pCanBo->next;
 					}
 				}
-				if (n == 0) cout << "Khong co thong tin can bo!" << endl;
-				int m = 0;    //bien dem so nhan vien
-				Node_NhanVien *pNhanVien = p->nhanVien;
+			}
+			Node_NhanVien *pNhanVien = pDonVi->nhanVien;
+			if (pNhanVien == NULL) {
+				cout << "\nKhong co thong tin nhan vien!" << endl;
+			}
+			else 
+			{
+				cout << "Thong tin nhan vien: " << endl;
+				cout << left << setw(15) << "Ho" << setw(10) << "Ten" << setw(8) << "Ma NV" << setw(12) << "Ngay Sinh"
+					 << setw(15) << "Que Quan" << setw(25) << "Dia Chi" << setw(20) << "Don Vi" << setw(10) << "Chuc Vu" << endl;
 				while (true)
 				{
 					if (pNhanVien == NULL) {
@@ -385,20 +412,13 @@ void xuatThongTinCoBanVeMotDonVi(DonVi *ds_DonVi, string tenDonVi)
 					}
 					else
 					{
-						m++;
 						xuatThongTinCoBanMotNhanVien(pNhanVien->nhanVien);
 						pNhanVien = pNhanVien->next;
 					}
 				}
-				if (m == 0) cout << "Khong co thong tin nhan vien!" << endl;
 			}
-			if (p->next == ds_DonVi) break;
-			p = p->next;
 		}
-		if (count == 0) {
-			system("cls");
-			cout << "Khong co don vi nay trong danh sach!" << endl;
-		}
+		return;
 	}
 }
 
@@ -468,9 +488,11 @@ Node_NhanVien *Search(DonVi *ds_DonVi, string giaTriTimKiem) {
 					|| strstr((STRLWR(pCanBo->nhanVien.ho)).c_str(), STRLWR(giaTriTimKiem).c_str()) != NULL
 					|| strstr((STRLWR(pCanBo->nhanVien.email)).c_str(), STRLWR(giaTriTimKiem).c_str()) != NULL
 					|| strstr((STRLWR(pCanBo->nhanVien.ngayBatDauLamViec)).c_str(), STRLWR(giaTriTimKiem).c_str()) != NULL
-					|| strstr(STRLWR(giaTriTimKiem).c_str(), (STRLWR(pCanBo->nhanVien.maNhanVien)).c_str()) != NULL
+					|| _stricmp((pCanBo->nhanVien.maNhanVien).c_str(), giaTriTimKiem.c_str()) == 0
 					|| strstr((STRLWR(pCanBo->nhanVien.ngaySinh)).c_str(), STRLWR(giaTriTimKiem).c_str()) != NULL
-					|| strstr((STRLWR(pCanBo->nhanVien.chucVu)).c_str(), (STRLWR(giaTriTimKiem)).c_str()) != 0
+					|| strstr((STRLWR(pCanBo->nhanVien.chucVu)).c_str(), (STRLWR(giaTriTimKiem)).c_str()) != NULL
+					|| strstr((STRLWR(pCanBo->nhanVien.queQuan)).c_str(), (STRLWR(giaTriTimKiem)).c_str()) != NULL
+					|| strstr((STRLWR(pCanBo->nhanVien.diaChi)).c_str(), (STRLWR(giaTriTimKiem)).c_str()) != NULL
 					|| strstr((STRLWR((pCanBo->nhanVien.ho + " " + pCanBo->nhanVien.ten))).c_str(), STRLWR(giaTriTimKiem).c_str()) != NULL)
 				{
 					Node_NhanVien *pSaoChep = SaoChepNodeNhanVien(pCanBo);
@@ -494,9 +516,11 @@ Node_NhanVien *Search(DonVi *ds_DonVi, string giaTriTimKiem) {
 					|| strstr((pNhanVien->nhanVien.ho).c_str(), (STRLWR(giaTriTimKiem)).c_str()) != NULL
 					|| strstr((STRLWR(pNhanVien->nhanVien.email)).c_str(), (STRLWR(giaTriTimKiem)).c_str()) != NULL
 					|| strstr((STRLWR(pNhanVien->nhanVien.ngayBatDauLamViec)).c_str(), (STRLWR(giaTriTimKiem)).c_str()) != NULL
-					|| _stricmp((STRLWR(pNhanVien->nhanVien.maNhanVien)).c_str(), (STRLWR(giaTriTimKiem)).c_str()) == 0
+					|| _stricmp((pNhanVien->nhanVien.maNhanVien).c_str(), giaTriTimKiem.c_str()) == 0
 					|| strstr((STRLWR(pNhanVien->nhanVien.ngaySinh)).c_str(), STRLWR(giaTriTimKiem).c_str()) != NULL
-					|| strstr((STRLWR(pNhanVien->nhanVien.chucVu)).c_str(), (STRLWR(giaTriTimKiem)).c_str()) != 0
+					|| strstr((STRLWR(pNhanVien->nhanVien.queQuan)).c_str(), STRLWR(giaTriTimKiem).c_str()) != NULL
+					|| strstr((STRLWR(pNhanVien->nhanVien.diaChi)).c_str(), STRLWR(giaTriTimKiem).c_str()) != NULL
+					|| strstr((STRLWR(pNhanVien->nhanVien.chucVu)).c_str(), (STRLWR(giaTriTimKiem)).c_str()) != NULL
 					|| strstr((STRLWR(pNhanVien->nhanVien.ho + " " + pNhanVien->nhanVien.ten)).c_str(), (STRLWR(giaTriTimKiem)).c_str()) != NULL)
 				{
 					Node_NhanVien *pSaoChep = SaoChepNodeNhanVien(pNhanVien);
@@ -561,6 +585,70 @@ Node_NhanVien *TimKiemTheoMaNhanVien(DonVi *ds_DonVi, string maNhanVien) {
 	}
 	return NULL;
 }
+//kiem tra 1 chuoi co la so dien thoai khong
+bool ckeck_SDT(string SDT) {
+	if (SDT.length() == 10 || SDT.length() == 11) {
+		if (SDT[0] != '0') return false;
+		else
+		{
+			for (int i = 1; i < SDT.length(); i++)
+			{
+				if (SDT[i] < '0' || SDT[i] > '9') return false;
+			}
+		}
+	}
+	else
+	{
+		return false;
+	}
+	return true;
+}
+//kiem tra 1 chuoi co dung dinh dang ngay thang nam (dd/mm/yyyy) khong? neu dung tra ve true, nguoc lai tra ve false
+bool check_NgayThangNam(string str) {
+	string ngaySinh = "";
+	int j = 0;
+	for (int i = 0; i < str.length(); i++)
+	{
+		if (str[i] != ' ') {
+			ngaySinh[j] = str[i];
+			j++;
+		}
+	}
+	if (ngaySinh[0] >= '0' && ngaySinh[0] <= '3') {
+		if (ngaySinh[0] == '3') {
+			if (ngaySinh[1] != '0' || ngaySinh[1] != 1) {
+				return false;
+			}
+		}
+		else
+		{
+			if (ngaySinh[1] < '0' || ngaySinh[1] > '9') return false;
+		}
+		if (ngaySinh[2] != '/') return false;
+		if (ngaySinh[3] >= '0' && ngaySinh[3] <= '1') {
+			if (ngaySinh[3] == '1') {
+				if (ngaySinh[4] < '0' || ngaySinh[4] > '2') return false;
+			}
+			else
+			{
+				if (ngaySinh[4] < '0' || ngaySinh[4] > '9') return false;
+			}
+		}
+		else {
+			return false;
+		}
+		if (ngaySinh[5] != '/') return false;
+		for (int i = 6; i < ngaySinh.length(); i++)
+		{
+			if (ngaySinh[i] < '0' || ngaySinh[i] > '9') return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
+	return true;
+}
 
 void ThemMotNhanVien(DonVi *&ds_DonVi) {
 	NhanVien nhanVien;
@@ -591,9 +679,16 @@ void ThemMotNhanVien(DonVi *&ds_DonVi) {
 	cout << "Chuc vu: ";
 	cin.sync();
 	getline(cin, nhanVien.chucVu);
-	cout << "Ngay thang nam sinh : ";
+	cout << "Ngay thang nam sinh (dd/mm/yyyy): ";
 	cin.sync();
 	getline(cin, nhanVien.ngaySinh);
+	do
+	{
+		if (check_NgayThangNam(nhanVien.ngaySinh)) break;
+		cout << "Ngay sinh khong hop loi moi ban nhap lai (dd/mm/yyyy): ";
+		cin.sync();
+		getline(cin, nhanVien.ngaySinh);
+	} while (true);
 	cout << "Que quan: ";
 	cin.sync();
 	getline(cin, nhanVien.queQuan);
@@ -606,14 +701,27 @@ void ThemMotNhanVien(DonVi *&ds_DonVi) {
 	cout << "So dien thoai: ";
 	cin.sync();
 	getline(cin, nhanVien.sdt);
-	cout << "Ngay bat dau lam viec: ";
+	do
+	{
+		if (ckeck_SDT(nhanVien.sdt)) break;
+		cout << "So dien thoai ban vua nhap khong dung moi ban nhap lai: ";
+		cin.sync();
+		getline(cin, nhanVien.sdt);
+	} while (true);
+	cout << "Ngay bat dau lam viec (dd/mm/yyy): ";
 	cin.sync();
 	getline(cin, nhanVien.ngayBatDauLamViec);
+	do
+	{
+		if (check_NgayThangNam(nhanVien.ngayBatDauLamViec)) break;
+		cout << "Ngay thang nam khong hop loi moi ban nhap lai (dd/mm/yyyy): ";
+		cin.sync();
+		getline(cin, nhanVien.ngayBatDauLamViec);
+	} while (true);
 	char ch;
-	cout << "Nhap gian lam viec (y/n)?";
+	cout << "Nhap thoi gian lam viec (y/n)?";
 	cin >> ch;
 	if (ch == 'y' || ch == 'Y') {
-		cout << "Nhap thoi gian lam viec:" << endl;
 		while (true)
 		{
 			ThoiGian thoiGian;
@@ -631,10 +739,13 @@ void ThemMotNhanVien(DonVi *&ds_DonVi) {
 			if (ch == 'n') break;
 		}
 	}
+	clock_t start = clock();
 	Node_NhanVien *nodeNhanVien = new Node_NhanVien;
 	nodeNhanVien->nhanVien = nhanVien;
 	nodeNhanVien->next = NULL;
 	Insert(ds_DonVi, nodeNhanVien);
+	clock_t finish = clock();
+	cout << "\nThoi gian thuc hien: " << (double)(finish - start) / CLOCKS_PER_SEC << "s" << endl;
 }
 
 //tinh thoi gian lam viec cua nhan vien theo khung thoi gian 8:30->16:30, 
@@ -716,7 +827,7 @@ void HienThiTrangThaiLamViec(DonVi *ds_DonVi, string maNhanVien) {
 		}
 		else
 		{
-			cout << "Danh sach thoi gian lam viec: " << endl;
+			cout << "\nDanh sach thoi gian lam viec: " << endl;
 			for (int i = 0; i < pNhanVien->nhanVien.DS_ThoiGianLamViec.size(); i++) {
 				xuatThoiGian(pNhanVien->nhanVien.DS_ThoiGianLamViec[i]);
 			}
@@ -737,7 +848,7 @@ void HienThiTrangThaiLamViec(DonVi *ds_DonVi, string maNhanVien) {
 		}
 	}
 }
-
+// tim kiem va tra ve node truoc node can tim hoac chinh node do neu node do o dau danh sach
 Node_NhanVien *searchNode(DonVi *ds_DonVi, DonVi *&pDonVi, string maNhanVien) {
 	if (ds_DonVi == NULL) {
 		return NULL;
@@ -796,15 +907,15 @@ int UpdateInfo_NhanVien(DonVi *&ds_DonVi, string maNhanVien) {
 	{
 		int LuaChon;
 		cout << "Chon muc can cap nhat: " << endl;
-		cout << "1. Ho" << endl;
-		cout << "2. Ten" << endl;
-		cout << "3. Ngay sinh" << endl;
-		cout << "4. Que quan" << endl;
-		cout << "5. Dia chi" << endl;
-		cout << "6. SDT" << endl;
-		cout << "7. Email" << endl;
-		cout << "8. Chuc vu" << endl;
-		cout << "9. Don Vi" << endl;
+		cout << "01. Ho" << endl;
+		cout << "02. Ten" << endl;
+		cout << "03. Ngay sinh" << endl;
+		cout << "04. Que quan" << endl;
+		cout << "05. Dia chi" << endl;
+		cout << "06. SDT" << endl;
+		cout << "07. Email" << endl;
+		cout << "08. Chuc vu" << endl;
+		cout << "09. Don Vi" << endl;
 		cout << "10. Ngay bat dau lam viec" << endl;
 		cout << "Ban chon: ";
 		cin >> LuaChon;
@@ -813,56 +924,58 @@ int UpdateInfo_NhanVien(DonVi *&ds_DonVi, string maNhanVien) {
 			cin.ignore(32767, '\n'); //xoa di tat ca cac ki tu trong bo nho dem den khi gap \n
 			system("cls");
 			cout << "Ban chon sai! vui long thu lai!" << endl;
-			return 2;
+			return 1;
 		}
 		switch (LuaChon)
 		{
 		case 1: {
-			string ho;
 			cout << "Nhap ho: ";
 			cin.ignore();
-			getline(cin, ho);
-			pNhanVien->nhanVien.ho = ho;
+			getline(cin, pNhanVien->nhanVien.ho);
 			break;
 		}
 		case 2: {
-			string ten;
 			cout << "Nhap ten: ";
 			cin.ignore();
-			getline(cin, ten);
-			pNhanVien->nhanVien.ten = ten;
+			getline(cin, pNhanVien->nhanVien.ten);
 			break;
 		}
 		case 3: {
-			string ngaySinh;
 			cout << "Nhap ngay sinh: ";
 			cin.ignore();
-			getline(cin, ngaySinh);
-			pNhanVien->nhanVien.ngaySinh = ngaySinh;
+			getline(cin, pNhanVien->nhanVien.ngaySinh);
+			do
+			{
+				if (check_NgayThangNam(pNhanVien->nhanVien.ngaySinh)) break;
+				cout << "Ngay sinh khong hop le vui long nhap lai: ";
+				cin.ignore();
+				getline(cin, pNhanVien->nhanVien.ngaySinh);
+			} while (true);
 			break;
 		}
 		case 4: {
-			string queQuan;
 			cout << "Nhap que quan: ";
 			cin.ignore();
-			getline(cin, queQuan);
-			pNhanVien->nhanVien.queQuan = queQuan;
+			getline(cin, pNhanVien->nhanVien.queQuan);
 			break;
 		}
 		case 5: {
-			string diaChi;
 			cout << "Nhap dia chi: ";
 			cin.ignore();
-			getline(cin, diaChi);
-			pNhanVien->nhanVien.diaChi = diaChi;
+			getline(cin, pNhanVien->nhanVien.diaChi);
 			break;
 		}
 		case 6: {
-			string SDT;
 			cout << "Nhap SDT: ";
 			cin.ignore();
-			getline(cin, SDT);
-			pNhanVien->nhanVien.sdt = SDT;
+			getline(cin, pNhanVien->nhanVien.sdt);
+			do
+			{
+				if (ckeck_SDT(pNhanVien->nhanVien.sdt)) break;
+				cout << "So dien thoai khong hop le vui long nhap lai: ";
+				cin.ignore();
+				getline(cin, pNhanVien->nhanVien.sdt);
+			} while (true);
 			break;
 		}
 		case 7: {
@@ -878,7 +991,6 @@ int UpdateInfo_NhanVien(DonVi *&ds_DonVi, string maNhanVien) {
 			cout << "Nhap chuc vu: ";
 			cin.ignore();
 			getline(cin, chucVu);
-
 			if (_stricmp(pNhanVien->nhanVien.chucVu.c_str(), "nhan vien") != 0) {
 				pNhanVien->nhanVien.chucVu = chucVu;
 				if (_stricmp(chucVu.c_str(), "nhan vien") == 0) {
@@ -949,24 +1061,41 @@ int UpdateInfo_NhanVien(DonVi *&ds_DonVi, string maNhanVien) {
 		}
 		case 9: {
 			string donVi;
-			cout << "Nhap Don Vi: ";
+			DonVi *pDanhSachDonVi = ds_DonVi;
+			int n = 1;
+			cout << "Danh sach cac don vi: " << endl;
+			while (true)
+			{
+				cout << n << ". " << pDanhSachDonVi->tenDonVi << endl;
+				n++;
+				if (pDanhSachDonVi->next == ds_DonVi) break;
+				pDanhSachDonVi = pDanhSachDonVi->next;
+			}
+			cout << "Nhap Ten Don Vi: ";
 			cin.ignore();
 			getline(cin, donVi);
+			do
+			{
+				if (timKiemMotDonVi(ds_DonVi, donVi) != NULL) break;
+				cout << "Ban nhap sai ten don vi vui long nhap lai: ";
+				cin.sync();
+				getline(cin, donVi);
+			} while (true);
 			if (_stricmp(pNhanVien->nhanVien.donVi.c_str(), donVi.c_str()) != 0) {
 				DonVi *pDonVi;
 				Node_NhanVien *pNode = searchNode(ds_DonVi, pDonVi, maNhanVien);
-				DonVi *pDonVi1 = ds_DonVi;
+				DonVi *pDanhSachDonVi = ds_DonVi;
 				int n = 0;
 				while (true)
 				{
-					if (_stricmp(pDonVi1->tenDonVi.c_str(), donVi.c_str()) == 0) {
+					if (_stricmp(pDanhSachDonVi->tenDonVi.c_str(), donVi.c_str()) == 0) {
 						n++;
 						pNhanVien->nhanVien.donVi = donVi;
 						if (_stricmp(pNhanVien->nhanVien.chucVu.c_str(), "nhan vien") == 0) {
 							if (_stricmp(pNode->nhanVien.maNhanVien.c_str(), maNhanVien.c_str()) == 0) {
 								pDonVi->nhanVien = pDonVi->nhanVien->next;
-								Node_NhanVien *pTemp = pDonVi1->nhanVien;
-								pDonVi1->nhanVien = pNode;
+								Node_NhanVien *pTemp = pDanhSachDonVi->nhanVien;
+								pDanhSachDonVi->nhanVien = pNode;
 								pNode->next = pTemp;
 							}
 							else
@@ -978,14 +1107,14 @@ int UpdateInfo_NhanVien(DonVi *&ds_DonVi, string maNhanVien) {
 								pTemp->next = p;
 							}
 							pDonVi->soNhanVien--;
-							pDonVi1++;
+							pDanhSachDonVi->soNhanVien++;
 						}
 						else
 						{
 							if (_stricmp(pNode->nhanVien.maNhanVien.c_str(), maNhanVien.c_str()) == 0) {
 								pDonVi->canBo = pDonVi->canBo->next;
-								Node_NhanVien *pTemp = pDonVi1->canBo;
-								pDonVi1->canBo = pNode;
+								Node_NhanVien *pTemp = pDanhSachDonVi->canBo;
+								pDanhSachDonVi->canBo = pNode;
 								pNode->next = pTemp;
 							}
 							else
@@ -998,23 +1127,25 @@ int UpdateInfo_NhanVien(DonVi *&ds_DonVi, string maNhanVien) {
 							}
 						}
 					}
-					if (pDonVi1->next == ds_DonVi) break;
-					pDonVi1 = pDonVi1->next;
+					if (pDanhSachDonVi->next == ds_DonVi) break;
+					pDanhSachDonVi = pDanhSachDonVi->next;
 				}
-				if (n == 0) return 1;
 			}
 			break;
 		}
 		case 10: {
-			string ngayBatDauLamViec;
 			cout << "Nhap ngay Bat dau lam viec: ";
 			cin.ignore();
-			getline(cin, ngayBatDauLamViec);
-			pNhanVien->nhanVien.ngayBatDauLamViec = ngayBatDauLamViec;
+			getline(cin, pNhanVien->nhanVien.ngayBatDauLamViec);
+			do
+			{
+				if (check_NgayThangNam(pNhanVien->nhanVien.ngayBatDauLamViec)) break;
+				cout << "Ngay thang nam khong hop le vui long nhap lai: ";
+				cin.ignore();
+				getline(cin, pNhanVien->nhanVien.ngayBatDauLamViec);
+			} while (true);
 			break;
 		}
-		default:
-			break;
 		}
 		return 0;
 	}
@@ -1064,7 +1195,10 @@ int main()
 			{
 			case 1: {
 				cout << "Thong tin co ban ve cong ty BKCorporation: " << endl;
+				clock_t start = clock();
 				XuatThongTinCoBanVeCongTy(ds_DonVi);
+				clock_t finish = clock();
+				cout << "\nThoi gian thuc hien: " << (double)(finish - start) / CLOCKS_PER_SEC << "s" << endl;
 				break;
 			}
 			case 2: {
@@ -1077,14 +1211,15 @@ int main()
 				cin.ignore();
 				getline(cin, giaTriTimKiem);
 				Node_NhanVien *pNode;
+				clock_t start = clock();
 				pNode = Search(ds_DonVi, giaTriTimKiem);
 				if (pNode == NULL) {
 					cout << "Khong tim thay thong tin ban vua nhap" << endl;
 				}
 				else
 				{
-					cout << left << setw(15) << "Ho" << setw(7) << "Ten" << setw(8) << "Ma NV" << setw(12) << "Ngay Sinh"
-						<< setw(10) << "Que Quan" << setw(20) << "Dia Chi" << setw(20)
+					cout << left << setw(15) << "Ho" << setw(10) << "Ten" << setw(8) << "Ma NV" << setw(12) << "Ngay Sinh"
+						<< setw(15) << "Que Quan" << setw(25) << "Dia Chi" << setw(20)
 						<< "Don Vi" << setw(10) << "Chuc Vu" << endl;
 					while (true)
 					{
@@ -1093,6 +1228,8 @@ int main()
 						pNode = pNode->next;
 					}
 				}
+				clock_t finish = clock();
+				cout << "\nThoi gian thuc hien: " << (double)(finish - start) / CLOCKS_PER_SEC << "s" << endl;
 				break;
 			}
 			case 3: {
@@ -1104,7 +1241,10 @@ int main()
 				string maNhanVien;
 				cin.ignore();
 				getline(cin, maNhanVien);
+				clock_t start = clock();
 				HienThiTrangThaiLamViec(ds_DonVi, maNhanVien);
+				clock_t finish = clock();
+				cout << "\nThoi gian thuc hien: " << (double)(finish - start) / CLOCKS_PER_SEC << "s" << endl;
 				break;
 			}
 			case 4: {
@@ -1116,7 +1256,10 @@ int main()
 				cout << "Nhap ten don vi can tim: ";
 				cin.ignore();
 				getline(cin, tenDonVi);
+				clock_t start = clock();
 				xuatThongTinCoBanVeMotDonVi(ds_DonVi, tenDonVi);
+				clock_t finish = clock();
+				cout << "\nThoi gian thuc hien: " << (double)(finish - start) / CLOCKS_PER_SEC << "s" << endl;
 				break;
 			}
 			case 5: {
@@ -1128,7 +1271,7 @@ int main()
 					cout << "Danh sach cong ty rong!" << endl;
 					break;
 				}
-				cout << "Nhap ma nhan vien:";
+				cout << "Nhap ma nhan vien: ";
 				cin.ignore();
 				string maNhanVien;
 				getline(cin, maNhanVien);
@@ -1138,11 +1281,7 @@ int main()
 				}
 				else
 				{
-					if (n == 1) cout << "Khong co don vi ban vua nhap" << endl;
-					else
-					{
-						if (n == -1) cout << "Khong co nhan vien mang ma nay trong cong ty." << endl;
-					}
+					if (n == -1) cout << "Khong co nhan vien mang ma nay trong cong ty." << endl;
 				}
 				break;
 			}
