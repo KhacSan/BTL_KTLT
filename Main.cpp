@@ -4,6 +4,7 @@
 #include<iomanip>
 #include<cstdlib>
 #include<time.h>
+#include<regex>
 #include<iostream>
 using namespace std;
 #define GIO_DEN 8
@@ -182,9 +183,9 @@ void DocThongTinMotNhanVien(ifstream &input, NhanVien &nhanvien) {
 
 void xuatThoiGian(ThoiGian thoiGian) {
 	cout << left << "Ngay : " << thoiGian.ngayThangNam << "," << setw(2) << right << setfill('0') << thoiGian.gioDen
-		 << setfill(' ') << ":" << setw(2) << right << setfill('0') << thoiGian.phutDen << setfill(' ') 
-		 << "," << setw(2) << right << setfill('0')<< thoiGian.gioVe << setfill(' ') << ":"
-		 << setw(2) << right << setfill('0') << thoiGian.phutVe << setfill(' ')<< endl;
+		<< setfill(' ') << ":" << setw(2) << right << setfill('0') << thoiGian.phutDen << setfill(' ')
+		<< "," << setw(2) << right << setfill('0') << thoiGian.gioVe << setfill(' ') << ":"
+		<< setw(2) << right << setfill('0') << thoiGian.phutVe << setfill(' ') << endl;
 }
 
 void xuatThongTinCoBanMotNhanVien(NhanVien nhanvien) {
@@ -382,7 +383,7 @@ void xuatThongTinCoBanVeMotDonVi(DonVi *ds_DonVi, string tenDonVi)
 			{
 				cout << "Thong tin can bo: " << endl;
 				cout << left << setw(15) << "Ho" << setw(10) << "Ten" << setw(8) << "Ma NV" << setw(12) << "Ngay Sinh"
-					 << setw(15) << "Que Quan" << setw(25) << "Dia Chi" << setw(20) << "Don Vi" << setw(10) << "Chuc Vu" << endl;
+					<< setw(15) << "Que Quan" << setw(25) << "Dia Chi" << setw(20) << "Don Vi" << setw(10) << "Chuc Vu" << endl;
 				while (true)
 				{
 					if (pCanBo == NULL) {
@@ -399,11 +400,11 @@ void xuatThongTinCoBanVeMotDonVi(DonVi *ds_DonVi, string tenDonVi)
 			if (pNhanVien == NULL) {
 				cout << "\nKhong co thong tin nhan vien!" << endl;
 			}
-			else 
+			else
 			{
 				cout << "Thong tin nhan vien: " << endl;
 				cout << left << setw(15) << "Ho" << setw(10) << "Ten" << setw(8) << "Ma NV" << setw(12) << "Ngay Sinh"
-					 << setw(15) << "Que Quan" << setw(25) << "Dia Chi" << setw(20) << "Don Vi" << setw(10) << "Chuc Vu" << endl;
+					<< setw(15) << "Que Quan" << setw(25) << "Dia Chi" << setw(20) << "Don Vi" << setw(10) << "Chuc Vu" << endl;
 				while (true)
 				{
 					if (pNhanVien == NULL) {
@@ -584,69 +585,22 @@ Node_NhanVien *TimKiemTheoMaNhanVien(DonVi *ds_DonVi, string maNhanVien) {
 	}
 	return NULL;
 }
+
 //kiem tra 1 chuoi co la so dien thoai khong
 bool ckeck_SDT(string SDT) {
-	if (SDT.length() == 10 || SDT.length() == 11) {
-		if (SDT[0] != '0') return false;
-		else
-		{
-			for (int i = 1; i < SDT.length(); i++)
-			{
-				if (SDT[i] < '0' || SDT[i] > '9') return false;
-			}
-		}
-	}
-	else
-	{
-		return false;
-	}
-	return true;
+	regex pattern("(\\+84|0)\\d{9,10}");
+	return regex_match(SDT, pattern);
 }
 //kiem tra 1 chuoi co dung dinh dang ngay thang nam (dd/mm/yyyy) khong? neu dung tra ve true, nguoc lai tra ve false
-bool check_NgayThangNam(string str) {
-	string ngaySinh = "";
-	int j = 0;
-	for (int i = 0; i < str.length(); i++)
-	{
-		if (str[i] != ' ') {
-			ngaySinh[j] = str[i];
-			j++;
-		}
-	}
-	if (ngaySinh[0] >= '0' && ngaySinh[0] <= '3') {
-		if (ngaySinh[0] == '3') {
-			if (ngaySinh[1] != '0' || ngaySinh[1] != 1) {
-				return false;
-			}
-		}
-		else
-		{
-			if (ngaySinh[1] < '0' || ngaySinh[1] > '9') return false;
-		}
-		if (ngaySinh[2] != '/') return false;
-		if (ngaySinh[3] >= '0' && ngaySinh[3] <= '1') {
-			if (ngaySinh[3] == '1') {
-				if (ngaySinh[4] < '0' || ngaySinh[4] > '2') return false;
-			}
-			else
-			{
-				if (ngaySinh[4] < '0' || ngaySinh[4] > '9') return false;
-			}
-		}
-		else {
-			return false;
-		}
-		if (ngaySinh[5] != '/') return false;
-		for (int i = 6; i < ngaySinh.length(); i++)
-		{
-			if (ngaySinh[i] < '0' || ngaySinh[i] > '9') return false;
-		}
-	}
-	else
-	{
-		return false;
-	}
-	return true;
+bool check_NgayThangNam(string ngayThangNam) {
+	regex pattern("([1-9]|(0|1|2)[1-9]|3[0-1])/([1-9]|0[1-9]|1[1-2])/(19|20)[0-9]{2}");
+	return regex_match(ngayThangNam, pattern);
+}
+//kiem tra dinh dang email
+bool checkemail(string email)
+{
+	regex pattern("[a-zA-Z0-9_\.]+@[a-zA-Z]+\.[a-zA-Z]+(\.[a-zA-Z]+)*");// Hàm regex_match() dùng để kiểm tra TOÀN BỘ chuỗi
+	return regex_match(email, pattern);                                 // Hàm regex_search() dùng để kiểm tra CHUỖI CON trong chuỗi
 }
 
 void ThemMotNhanVien(DonVi *&ds_DonVi) {
@@ -697,6 +651,13 @@ void ThemMotNhanVien(DonVi *&ds_DonVi) {
 	cout << "Email: ";
 	cin.sync();
 	getline(cin, nhanVien.email);
+	do
+	{
+		if (checkemail(nhanVien.email)) break;
+		cout << "Email khong hop le vui long nhap lai: ";
+		cin.sync();
+		getline(cin, nhanVien.email);
+	} while (true);
 	cout << "So dien thoai: ";
 	cin.sync();
 	getline(cin, nhanVien.sdt);
@@ -847,7 +808,7 @@ void HienThiTrangThaiLamViec(DonVi *ds_DonVi, string maNhanVien) {
 		}
 	}
 }
-// tim kiem va tra ve node truoc node can tim hoac chinh node do neu node do o dau danh sach
+// tim kiem va tra ve node truoc node co ma nhan vien can tim hoac chinh node do neu node do o dau danh sach,va lay don vi chua nhan vien do truyen vao *pDonVi
 Node_NhanVien *searchNode(DonVi *ds_DonVi, DonVi *&pDonVi, string maNhanVien) {
 	if (ds_DonVi == NULL) {
 		return NULL;
@@ -896,7 +857,7 @@ Node_NhanVien *searchNode(DonVi *ds_DonVi, DonVi *&pDonVi, string maNhanVien) {
 }
 
 // cap nhat thong tin 1 nhan vien theo ma nhan vien tra ve -1 neu khong co nhan vien nay trong cong ty, 
-//tra ve 0 neu cap nhat thanh cong, tra ve 1 neu cap nhat don vi ma nguoi nhap vao ten don vi khong ton tai
+//tra ve 0 neu cap nhat thanh cong
 int UpdateInfo_NhanVien(DonVi *&ds_DonVi, string maNhanVien) {
 	Node_NhanVien *pNhanVien = TimKiemTheoMaNhanVien(ds_DonVi, maNhanVien);
 	if (pNhanVien == NULL) {
@@ -947,7 +908,7 @@ int UpdateInfo_NhanVien(DonVi *&ds_DonVi, string maNhanVien) {
 			{
 				if (check_NgayThangNam(pNhanVien->nhanVien.ngaySinh)) break;
 				cout << "Ngay sinh khong hop le vui long nhap lai: ";
-				cin.ignore();
+				cin.sync();
 				getline(cin, pNhanVien->nhanVien.ngaySinh);
 			} while (true);
 			break;
@@ -972,17 +933,22 @@ int UpdateInfo_NhanVien(DonVi *&ds_DonVi, string maNhanVien) {
 			{
 				if (ckeck_SDT(pNhanVien->nhanVien.sdt)) break;
 				cout << "So dien thoai khong hop le vui long nhap lai: ";
-				cin.ignore();
+				cin.sync();
 				getline(cin, pNhanVien->nhanVien.sdt);
 			} while (true);
 			break;
 		}
 		case 7: {
-			string email;
 			cout << "Nhap Email: ";
 			cin.ignore();
-			getline(cin, email);
-			pNhanVien->nhanVien.email = email;
+			getline(cin, pNhanVien->nhanVien.email);
+			do
+			{
+				if (checkemail(pNhanVien->nhanVien.email)) break;
+				cout << "Email khong hop le vui long nhap lai: ";
+				cin.sync();
+				getline(cin, pNhanVien->nhanVien.email);
+			} while (true);
 			break;
 		}
 		case 8: {
@@ -1139,7 +1105,7 @@ int UpdateInfo_NhanVien(DonVi *&ds_DonVi, string maNhanVien) {
 			do
 			{
 				if (check_NgayThangNam(pNhanVien->nhanVien.ngayBatDauLamViec)) break;
-				cout << "Ngay thang nam khong hop le vui long nhap lai: ";
+				cout << "Ngay thang nam khong hop le vui long nhap lai(dd/mm/yyyy): ";
 				cin.ignore();
 				getline(cin, pNhanVien->nhanVien.ngayBatDauLamViec);
 			} while (true);
